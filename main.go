@@ -84,7 +84,7 @@ type Storage interface {
     ExistsURL(shortCode string) (bool, error)  
     ListAllURLs() ([]string, error)  
     SaveStats(data []byte) error  
-    GetStats() ([]byte, error  
+    GetSGetStats() ([]byte, error)  
 }  
   
 // Global storage instance  
