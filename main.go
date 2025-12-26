@@ -446,16 +446,16 @@ func (hs *HybridStorage) SaveStats(data Data) error {
 func (hs *HybridStorage) LoadStats() (Data, error) {  
     if redisEnabled {  
         // Redis可用时，从Redis读取  
-        stats, err := hs.redis.LoadStats()  
+        stats, err := hs.redis.LoadStats()
         if err != nil {  
             log.Printf("Redis读取统计数据失败: %v，回退到本地short_data文件存储", err)  
             // Redis读取失败时，回退到本地文件  
-            return hs.file.LoadStats()    
+            return hs.file.LoadStats()
         }  
         return stats, nil  
     }  
     // Redis不可用时，从本地文件读取  
-    return hs.file.LoadStats()  
+    return hs.file.LoadStats()
 }  
   
 // 全局存储实例  
@@ -473,11 +473,11 @@ func syncLocalToRedis() {
     redisStorage := NewRedisStorage(redisPrefix)  
         
     // 同步统计数据 - 比较total_rules和total_visits  
-    localStats, err := fileStorage.LoadStats()  
+    localStats, err := fileStorage.LoadStats()
     if err != nil {  
         log.Printf("读取本地统计数据失败: %v", err)  
     } else {  
-        redisStats, err := redisStorage.LoadStats()  
+        redisStats, err := redisStorage.LoadStats()
             
         if err != nil {  
             // Redis中没有统计数据，同步本地到Redis  
@@ -493,16 +493,14 @@ func syncLocalToRedis() {
             redisToLocal := redisStats.TotalRules > localStats.TotalRules || redisStats.TotalVisits > localStats.TotalVisits  
                 
             if localToRedis {  
-                // log.Printf("本地数据(后缀已使用:%d, 总转址数:%d)大于Redis(后缀已使用:%d, 总转址数:%d)，同步本地到Redis",   
-                    localStats.TotalRules, localStats.TotalVisits, redisStats.TotalRules, redisStats.TotalVisits)  
+                // log.Printf("本地数据(后缀已使用:%d, 总转址数:%d)大于Redis(后缀已使用:%d, 总转址数:%d)，同步本地到Redis", localStats.TotalRules, localStats.TotalVisits, redisStats.TotalRules, redisStats.TotalVisits)  
                 if err := redisStorage.SaveStats(localStats); err != nil {  
                     log.Printf("保存统计数据到Redis失败: %v", err)  
                 } else {  
                     // log.Println("本地统计数据同步到Redis完成")  
                 }  
             } else if redisToLocal {  
-                // log.Printf("Redis数据(后缀已使用:%d, 总转址数:%d)大于本地(后缀已使用:%d, 总转址数:%d)，同步Redis到本地",   
-                    redisStats.TotalRules, redisStats.TotalVisits, localStats.TotalRules, localStats.TotalVisits)  
+                // log.Printf("Redis数据(后缀已使用:%d, 总转址数:%d)大于本地(后缀已使用:%d, 总转址数:%d)，同步Redis到本地", redisStats.TotalRules, redisStats.TotalVisits, localStats.TotalRules, localStats.TotalVisits)  
                 if err := fileStorage.SaveStats(redisStats); err != nil {  
                     log.Printf("保存Redis统计数据到本地失败: %v", err)  
                 } else {  
@@ -528,7 +526,7 @@ func syncLocalToRedis() {
     }  
         
     // 同步规则数据 - 比较更新时间  
-    localRules, err := fileStorage.ListRules()  
+    localRules, err := fileStorage.ListRules()
     if err != nil {  
         log.Printf("读取本地规则数据失败: %v", err)  
         return  
@@ -563,11 +561,9 @@ func syncLocalToRedis() {
                 // log.Printf("规则 %s 时间解析失败，将同步", rule.ShortCode)  
             } else if localTime.After(redisTime) {  
                 shouldSync = true  
-                // log.Printf("规则 %s 更新时间(%s)比Redis(%s)新，将同步",     
-                    rule.ShortCode, rule.LastUpdate, redisRule.LastUpdate)  
+                // log.Printf("规则 %s 更新时间(%s)比Redis(%s)新，将同步", rule.ShortCode, rule.LastUpdate, redisRule.LastUpdate)  
             } else {  
-                // log.Printf("规则 %s 更新时间(%s)不比Redis(%s)新，跳过同步",     
-                    rule.ShortCode, rule.LastUpdate, redisRule.LastUpdate)  
+                // log.Printf("规则 %s 更新时间(%s)不比Redis(%s)新，跳过同步", rule.ShortCode, rule.LastUpdate, redisRule.LastUpdate)  
                 shouldDelete = true // 同步完成后删除本地文件  
             }  
         }  
@@ -599,7 +595,7 @@ func syncLocalToRedis() {
       
     // 同步完成后重新统计并更新total_rules  
     log.Println("开始重新统计并更新后缀已使用数量...")  
-    updateTotalRulesAfterSync()  
+    updateTotalRulesAfterSync()
 }
   
 // 定期检查Redis连接并重连  
@@ -610,20 +606,20 @@ func startRedisHealthCheck() {
       
     go func() {  
         ticker := time.NewTicker(30 * time.Second)  
-        defer ticker.Stop()  
+        defer ticker.Stop()
           
         for range ticker.C {  
-            _, err := redisClient.Ping(redisCtx).Result()  
+            _, err := redisClient.Ping(redisCtx).Result()
             if err != nil {  
                 log.Printf("Redis连接检查失败: %v", err)  
                 // 尝试重新连接  
                 if initRedis(redisAddr, redisUsername, redisPassword, redisPrefix) {  
                     log.Println("Redis重新连接成功，开始数据同步")  
-                    syncLocalToRedis()  
+                    syncLocalToRedis()
                 }  
             }  
         }  
-    }()  
+    }()
 }
 
 //配置文件读取修改，数据中获取指定键的字符串
@@ -1002,8 +998,7 @@ func loadStatsWithPriority() (Data, error) {
         redisStorage := NewRedisStorage(redisPrefix)  
         stats, err := redisStorage.LoadStats()  
         if err == nil {  
-            // log.Printf("从Redis获取统计数据成功: 后缀已使用=%d, 总转址数=%d",     
-                stats.TotalRules, stats.TotalVisits)  
+            // log.Printf("从Redis获取统计数据成功: 后缀已使用=%d, 总转址数=%d", stats.TotalRules, stats.TotalVisits)  
             return stats, nil  
         } else {  
             log.Printf("从Redis获取统计数据失败: %v，回退到本地文件", err)  
@@ -1018,8 +1013,7 @@ func loadStatsWithPriority() (Data, error) {
         return Data{}, err  
     }  
       
-    // log.Printf("从本地文件获取统计数据: 后缀已使用=%d, 总转址数=%d",   
-        stats.TotalRules, stats.TotalVisits)  
+    // log.Printf("从本地文件获取统计数据: 后缀已使用=%d, 总转址数=%d", stats.TotalRules, stats.TotalVisits)  
     return stats, nil  
 }
 // 同步完成后重新统计并更新total_rules  
@@ -1102,7 +1096,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
     w.Write([]byte(htmlString))
 }
 
-// 处理其他请求  
 // 处理其他请求  
 func shortHandler(w http.ResponseWriter, r *http.Request, dataDir string) {  
     // 获取请求路径并处理  
