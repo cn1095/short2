@@ -2076,8 +2076,8 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 /* Vue样式按钮组 */  
 .button-group {  
 	display: flex;  
-	gap: 10px;  
-	margin: 8px 0;  
+	gap: 8px;  
+	margin: 1px 0;  
 	flex-wrap: wrap;  
 	align-items: center;  
 }  
@@ -2359,22 +2359,29 @@ td:nth-child(2) {
 			}  
   
 			function initLongUrlToggle() {  
-    			var longUrlCells = document.querySelectorAll('td:nth-child(2)');  
-    			longUrlCells.forEach(function(cell) {  
-        			// 检查文本是否被截断  
-        			if (isTextTruncated(cell)) {  
-            			cell.classList.add('truncated');  
-            			cell.title = '点击展开完整内容';  
-            			cell.onclick = function() {  
-                			toggleLongUrl(this);  
-            			};  
-        			} else {  
-            			// 短链接不添加任何交互  
-            			cell.title = '';  
-            			cell.onclick = null;  
-        			}  
-    			});  
-			}
+    var longUrlCells = document.querySelectorAll('td:nth-child(2)');  
+    longUrlCells.forEach(function(cell) {  
+        // 强制重新布局以确保准确的尺寸计算  
+        cell.style.overflow = 'hidden';  
+        cell.style.textOverflow = 'ellipsis';  
+        cell.style.whiteSpace = 'nowrap';  
+          
+        // 延迟检测以确保DOM完全渲染  
+        setTimeout(function() {  
+            if (isTextTruncated(cell)) {  
+                cell.classList.add('truncated');  
+                cell.title = '点击展开完整内容';  
+                cell.onclick = function() {  
+                    toggleLongUrl(this);  
+                };  
+            } else {  
+                cell.classList.remove('truncated', 'expanded');  
+                cell.title = '';  
+                cell.onclick = null;  
+            }  
+        }, 50);  
+    });  
+}
 			window.onload = function() {
 				var savedPageSize = localStorage.getItem("pageSize");
 				if (savedPageSize) {
@@ -2619,8 +2626,8 @@ td:nth-child(2) {
     		var rows = Array.from(tbody.getElementsByTagName("tr"));  
       
     		rows.sort(function(a, b) {  
-        		var dateA = a.getElementsByTagName("td")[7].innerText; // 最后更新时间在第8列  
-        		var dateB = b.getElementsByTagName("td")[7].innerText;  
+        		var dateA = a.getElementsByTagName("td")[8].innerText; // 最后更新时间在第9列索引8  
+        		var dateB = b.getElementsByTagName("td")[8].innerText;  
           
         		if (!dateA) return 1;  
         		if (!dateB) return -1;  
@@ -2656,8 +2663,8 @@ function sortByExpiration() {
     var rows = Array.from(tbody.getElementsByTagName("tr"));  
       
     rows.sort(function(a, b) {  
-        var dateA = a.getElementsByTagName("td")[4].innerText; // 到期时间在第5列  
-        var dateB = b.getElementsByTagName("td")[4].innerText;  
+        var dateA = a.getElementsByTagName("td")[5].innerText; // 到期时间在第6列 索引5  
+        var dateB = b.getElementsByTagName("td")[5].innerText;  
           
         // 空值处理：将空值放在最后  
         if (!dateA || dateA.trim() === '') return 1;  
@@ -2884,8 +2891,10 @@ window.onload = function() {
 	}  
 	updatePageSizeSelect();  
 	updateTablePagination();  
-	// 初始化长链接展开功能    
-	initLongUrlToggle();  
+	// 延迟初始化长链接功能，确保表格完全渲染  
+    setTimeout(function() {  
+        initLongUrlToggle();  
+    }, 200);  
 	  
 	// 隐藏所有复选框  
 	var checkboxes = document.querySelectorAll(".row-checkbox");  
