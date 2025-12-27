@@ -2373,6 +2373,44 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
     		// 重新应用分页  
     		updateTablePagination();  
 		}
+		var expirationSortOrder = 'asc'; // 'asc' 或 'desc'  
+  
+function sortByExpiration() {  
+    var table = document.getElementById("dataTable");  
+    var tbody = table.getElementsByTagName("tbody")[0];  
+    var rows = Array.from(tbody.getElementsByTagName("tr"));  
+      
+    rows.sort(function(a, b) {  
+        var dateA = a.getElementsByTagName("td")[4].innerText; // 到期时间在第5列  
+        var dateB = b.getElementsByTagName("td")[4].innerText;  
+          
+        // 空值处理：将空值放在最后  
+        if (!dateA || dateA.trim() === '') return 1;  
+        if (!dateB || dateB.trim() === '') return -1;  
+          
+        var timeA = new Date(dateA).getTime();  
+        var timeB = new Date(dateB).getTime();  
+          
+        if (expirationSortOrder === 'asc') {  
+            return timeA - timeB; // 升序：最旧的最新依次往下  
+        } else {  
+            return timeB - timeA; // 降序：最新到最旧依次往下  
+        }  
+    });  
+      
+    // 清空tbody并重新添加排序后的行  
+    tbody.innerHTML = '';  
+    rows.forEach(function(row) {  
+        tbody.appendChild(row);  
+    });  
+      
+    // 切换排序顺序并更新箭头  
+    expirationSortOrder = expirationSortOrder === 'asc' ? 'desc' : 'asc';  
+    document.getElementById("expirationSortArrow").innerText = expirationSortOrder === 'asc' ? '↓' : '↑';  
+      
+    // 重新应用分页  
+    updateTablePagination();  
+}
 		function showLoading() {  
     var popup = document.getElementById("loadingPopup");  
     popup.style.display = "flex";  
@@ -2395,7 +2433,7 @@ function hideLoading() {
 						<th>后缀</th>
 						<th>密码</th>
 						<th>客户端IP</th>
-						<th>到期时间</th>
+						<th onclick="sortByExpiration()" style="cursor: pointer;">到期时间 <span id="expirationSortArrow">↕</span></th>
 						<th>阅后即焚</th>
 						<th>类型</th>
 						<th onclick="sortByLastUpdate()" style="cursor: pointer;">最后更新时间 <span id="sortArrow">↕</span></th>
