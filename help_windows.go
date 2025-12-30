@@ -1,7 +1,11 @@
 //go:build windows  
 // +build windows  
   
-package main  
+package main
+
+import (  
+    "fmt"  
+)
   
 func printHelp() {  
     // Windows 不使用彩色输出  
