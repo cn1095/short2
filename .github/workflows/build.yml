@@ -89,7 +89,7 @@ jobs:
             NAME: freebsd-x86
           - GOARCH: amd64
             GOOS: windows
-            NAME: windows-x86
+            NAME: windows-x86.exe
           - GOARCH: arm64
             GOOS: windows
             NAME: windows-arm64.exe
@@ -128,7 +128,7 @@ jobs:
             export GOMIPS=$GOmips
             if [ "${GOos}" == "windows" ]; then
               curl -L https://github.com/thongtech/go-legacy-win7/releases/download/v1.25.5-1/go-legacy-win7-1.25.5-1.linux_amd64.tar.gz -o go-legacy-win7.tar.gz
-              tar --no-same-permissions -xzvf go-legacy-win7.tar.gz -C /opt/
+              sudo tar --no-same-permissions -xzvf go-legacy-win7.tar.gz -C /opt/
               export GOROOT=/opt/go-legacy-win7-1.25.5-1
             fi
             go mod tidy
